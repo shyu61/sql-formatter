@@ -3,6 +3,8 @@ use atty::{self, Stream};
 use std::io::{self, Read};
 use structopt::StructOpt;
 
+use sql_formatter::formatter::{formatting, Options};
+
 #[derive(StructOpt, Debug)]
 struct Opt {
     #[structopt(name = "INPUT")]
@@ -37,7 +39,7 @@ fn main() -> Result<()> {
         std::process::exit(1);
     }
 
-    let mut sql = match sql {
+    let sql = match sql {
         Some(i) => i,
         None => read_from_stdin()?,
     };
@@ -45,14 +47,9 @@ fn main() -> Result<()> {
         Opt::clap().get_matches().usage();
     }
 
-    // <<< formatting
-    if args.lower {
-        sql = sql.to_lowercase();
-    } else {
-        sql = sql.to_uppercase();
-    }
-    // >>>
+    let options = Options { lower: args.lower };
+    let conved_sql = formatting(sql, options)?;
 
     #[allow(clippy::unit_arg)]
-    Ok(println!("args: {}", sql))
+    Ok(println!("args: {}", conved_sql))
 }
