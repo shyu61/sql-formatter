@@ -31,7 +31,6 @@ fn read_from_stdin() -> Result<String> {
 
 fn main() -> Result<()> {
     let args = Opt::from_args();
-    println!("{:?}", args);
     let sql = args.input;
 
     if sql.is_none() && !is_pipe() {
@@ -51,5 +50,5 @@ fn main() -> Result<()> {
     let conved_sql = formatting(sql, options)?;
 
     #[allow(clippy::unit_arg)]
-    Ok(println!("args: {}", conved_sql))
+    Ok(println!("{}", conved_sql))
 }
