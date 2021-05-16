@@ -16,6 +16,9 @@ struct Opt {
     #[structopt(short = "l", long = "lower", conflicts_with_all(&["uppper"]))]
     lower: bool,
 
+    #[structopt(short = "o", long = "oneline")]
+    oneline: bool,
+
     #[structopt(
         short = "c",
         long = "color",
@@ -54,7 +57,7 @@ fn main() -> Result<()> {
         Opt::clap().get_matches().usage();
     }
 
-    let options = Options { lower: args.lower, color: args.color };
+    let options = Options { lower: args.lower, oneline: args.oneline, color: args.color };
     let conved_sql = formatting(sql, options)?;
 
     println!("==================");

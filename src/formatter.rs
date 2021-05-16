@@ -43,6 +43,7 @@ arg_enum! {
 
 pub struct Options {
     pub lower: bool,
+    pub oneline: bool,
     pub color: Option<Colors>,
 }
 
@@ -51,8 +52,10 @@ fn coloring(target: String, color: Colors) -> String {
     form
 }
 
-fn line_formatting(target: String, w: &&str) -> String {
-    let form = if ONLY_BEFORE_LINE_FEED_WORDS.contains(w) {
+fn line_formatting(target: String, w: &&str, oneline: bool) -> String {
+    let form = if oneline {
+        target 
+    } else if ONLY_BEFORE_LINE_FEED_WORDS.contains(w) {
         format!("\n{}", target)
     } else if ONLY_AFTER_LINE_FEED_WORDS.contains(w) {
         format!("{}\n", target)
@@ -79,6 +82,12 @@ fn formatting_brackets(input: String) -> Result<String> {
     Ok(colored)
 }
 
+fn trim_first_line(input: String) -> Result<String> {
+    let first_line_regex = Regex::new(r"^(\s\n|\s)")?;
+    let output = first_line_regex.replace_all(&input, "").to_string();
+    Ok(output)
+}
+
 #[allow(unused_assignments)]
 pub fn formatting(input: String, options: Options) -> Result<String> {
     let mut sql = input;
@@ -87,14 +96,15 @@ pub fn formatting(input: String, options: Options) -> Result<String> {
     for w in RESERVED_WORDS.iter() {
         let from = format!(r"(?i)((\s+)|(?P<head>^)){}((\s+)|(?P<in>\())", w);
         let to = if options.lower {
-            format!(" {} ", line_formatting(coloring(w.to_lowercase(), color), w))
+            format!(" {} ", line_formatting(coloring(w.to_lowercase(), color), w, options.oneline))
         } else {
-            format!(" {} ", line_formatting(coloring(w.to_uppercase(), color), w))
+            format!(" {} ", line_formatting(coloring(w.to_uppercase(), color), w, options.oneline))
         };
         let regex = Regex::new(&from)?;
         sql = regex.replace_all(&sql, format!("{}{}", to, "$in")).to_string();
     }
     sql = formatting_equal(sql)?;
     sql = formatting_brackets(sql)?;
+    sql = trim_first_line(sql)?;
     Ok(sql)
 }
