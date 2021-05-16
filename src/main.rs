@@ -60,7 +60,6 @@ fn main() -> Result<()> {
     let options = Options { lower: args.lower, oneline: args.oneline, color: args.color };
     let conved_sql = formatting(sql, options)?;
 
-    println!("==================");
     #[allow(clippy::unit_arg)]
-    Ok(println!("{}", conved_sql))
+    Ok(println!("\n{}", conved_sql))
 }
