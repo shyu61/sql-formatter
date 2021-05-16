@@ -1,4 +1,4 @@
-pub const RESERVED_WORD: [&str; 212] = [
+pub const RESERVED_WORDS: [&str; 212] = [
         "ABOUT",
         "ACCELERATED",
         "ADD",
@@ -212,3 +212,21 @@ pub const RESERVED_WORD: [&str; 212] = [
         "WORK",
         "WRITE",
     ];
+
+pub const ONLY_BEFORE_LINE_FEED_WORDS: [&str; 5] = [
+        "GROUP",
+        "INNER",
+        "LEFT",
+        "ON",
+        "ORDER",
+];
+
+pub const ONLY_AFTER_LINE_FEED_WORDS: [&str; 2] = [
+        "BY",
+        "JOIN",
+];
+
+pub const NONE_LINE_FEED_WORDS: [&str; 2] = [
+        "IN",
+        "OUTER",
+];
