@@ -3,7 +3,7 @@ use atty::{self, Stream};
 use std::io::{self, Read};
 use structopt::StructOpt;
 
-use sql_formatter::formatter::{formatting, Options};
+use sql_formatter::formatter::{formatting, Options, Colors};
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -15,6 +15,14 @@ struct Opt {
 
     #[structopt(short = "l", long = "lower", conflicts_with_all(&["uppper"]))]
     lower: bool,
+
+    #[structopt(
+        short = "c",
+        long = "color",
+        possible_values = &Colors::variants(),
+        case_insensitive = true
+    )]
+    color: Option<Colors>,
 }
 
 fn is_pipe() -> bool {
@@ -46,7 +54,7 @@ fn main() -> Result<()> {
         Opt::clap().get_matches().usage();
     }
 
-    let options = Options { lower: args.lower };
+    let options = Options { lower: args.lower, color: args.color };
     let conved_sql = formatting(sql, options)?;
 
     println!("==================");

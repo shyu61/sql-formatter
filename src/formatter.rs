@@ -1,5 +1,9 @@
+// use std::char::ParseCharError;
+// use std::str::FromStr;
+
 use anyhow::Result;
 use regex::Regex;
+use structopt::clap::arg_enum;
 
 use crate::reserved_words::{
     RESERVED_WORDS,
@@ -8,15 +12,42 @@ use crate::reserved_words::{
     NONE_LINE_FEED_WORDS
 };
 
-const BLUE: u32 = 36;
-const YELLOW: u32 = 33;
+arg_enum! {
+    #[derive(Clone, Copy, Debug)]
+    pub enum Colors {
+        Red = 31,
+        Green = 32,
+        Yellow = 33,
+        Blue = 34,
+        Cyan = 36,
+        White = 37,
+    }
+}
+
+// impl FromStr for Colors {
+//     type Err = ParseCharError;
+
+//     fn from_str(s: &str) -> Result<Self, Self::Err> {
+//         let color = match s {
+//             "red" => Colors::Red,
+//             "green" => Colors::Green,
+//             "yellow" => Colors::Yellow,
+//             "blue" => Colors::Blue,
+//             "cyan" => Colors::Cyan,
+//             "white" => Colors::White,
+//             _ => panic!("Invalid arguments of color"),
+//         };
+//         Ok(color)
+//     }
+// }
 
 pub struct Options {
     pub lower: bool,
+    pub color: Option<Colors>,
 }
 
-fn coloring(target: String, color_num: u32) -> String {
-    let form = format!("\x1b[{}m{}\x1b[0m", color_num, target);
+fn coloring(target: String, color: Colors) -> String {
+    let form = format!("\x1b[{}m{}\x1b[0m", color as u32, target);
     form
 }
 
@@ -44,22 +75,21 @@ fn formatting_brackets(input: String) -> Result<String> {
     let trimed = space_regex.replace_all(&input, "(").to_string();
 
     let bracket_regex = Regex::new(r"(\(|\))")?;
-    let colored = bracket_regex.replace_all(&trimed, coloring("$1".to_string(), YELLOW)).to_string();
+    let colored = bracket_regex.replace_all(&trimed, coloring("$1".to_string(), Colors::Yellow)).to_string();
     Ok(colored)
 }
 
 #[allow(unused_assignments)]
 pub fn formatting(input: String, options: Options) -> Result<String> {
     let mut sql = input;
-
-    println!("{}", sql);
+    let color = options.color.unwrap_or(Colors::Cyan);
 
     for w in RESERVED_WORDS.iter() {
         let from = format!(r"(?i)((\s+)|(?P<head>^)){}((\s+)|(?P<in>\())", w);
         let to = if options.lower {
-            format!(" {} ", line_formatting(coloring(w.to_lowercase(), BLUE), w))
+            format!(" {} ", line_formatting(coloring(w.to_lowercase(), color), w))
         } else {
-            format!(" {} ", line_formatting(coloring(w.to_uppercase(), BLUE), w))
+            format!(" {} ", line_formatting(coloring(w.to_uppercase(), color), w))
         };
         let regex = Regex::new(&from)?;
         sql = regex.replace_all(&sql, format!("{}{}", to, "$in")).to_string();
