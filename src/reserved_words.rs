@@ -213,26 +213,31 @@ pub const RESERVED_WORDS: [&str; 212] = [
         "WRITE",
     ];
 
-pub const ONLY_BEFORE_LINE_FEED_WORDS: [&str; 6] = [
+pub const ONLY_BEFORE_LINE_FEED_WORDS: [&str; 7] = [
         "GROUP",
         "HAVING",
         "INNER",
         "LEFT",
         "ON",
         "ORDER",
+        "RIGHT",
 ];
 
-pub const ONLY_AFTER_LINE_FEED_WORDS: [&str; 4] = [
+pub const ONLY_AFTER_LINE_FEED_WORDS: [&str; 5] = [
         "BY",
         "JOIN",
         "NOW",
         "NULL",
+        "TABLE",
 ];
 
-pub const NONE_LINE_FEED_WORDS: [&str; 5] = [
+pub const NONE_LINE_FEED_WORDS: [&str; 8] = [
         "AS",
         "IN",
+        "INTO",
         "IS",
         "LIKE",
+        "NOT",
         "OUTER",
+        "VALUES",
 ];
