@@ -13,14 +13,14 @@ use crate::reserved_words::{
 };
 
 arg_enum! {
-    #[derive(Clone, Copy, Debug)]
+    #[derive(Clone, Copy, Debug, PartialEq)]
     pub enum Colors {
         Red = 31,
         Green = 32,
         Yellow = 33,
         Blue = 34,
         Cyan = 36,
-        White = 37,
+        White
     }
 }
 
@@ -48,6 +48,9 @@ pub struct Options {
 }
 
 fn coloring(target: String, color: Colors) -> String {
+    if color == Colors::White {
+        return target
+    }
     let form = format!("\x1b[{}m{}\x1b[0m", color as u32, target);
     form
 }
@@ -107,4 +110,45 @@ pub fn formatting(input: String, options: Options) -> Result<String> {
     sql = formatting_brackets(sql)?;
     sql = trim_first_line(sql)?;
     Ok(sql)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::formatter::{Colors, formatting, Options};
+
+    #[test]
+    fn default_color() {
+        let options = Options { lower: false, oneline: true, color: None };
+        let sql = "select * from users".to_string();
+        let conved_sql = formatting(sql, options).unwrap();
+
+        assert_eq!(conved_sql, "\x1b[36mSELECT\x1b[0m * \x1b[36mFROM\x1b[0m users");
+    }
+
+    #[test]
+    fn non_color() {
+        let options = Options { lower: false, oneline: true, color: Some(Colors::White) };
+        let sql = "select * from users".to_string();
+        let conved_sql = formatting(sql, options).unwrap();
+
+        assert_eq!(conved_sql, "SELECT * FROM users");
+    }
+
+    #[test]
+    fn lower() {
+        let options = Options { lower: true, oneline: true, color: Some(Colors::White) };
+        let sql = "seLEcT * frOM users".to_string();
+        let conved_sql = formatting(sql, options).unwrap();
+
+        assert_eq!(conved_sql, "select * from users");
+    }
+
+    #[test]
+    fn feed_line() {
+        let options = Options { lower: false, oneline: false,  color: Some(Colors::White) };
+        let sql = "select * from users".to_string();
+        let conved_sql = formatting(sql, options).unwrap();
+
+        assert_eq!(conved_sql, "SELECT\n * \nFROM\n users");
+    }
 }
